@@ -3,7 +3,7 @@ import pdb  # デバッグ用
 import win32com.client
 import mail_secret
 from tkinter import filedialog, Tk
-import sys
+import subprocess, sys
 import datetime
 import re  # 正規表現
 import os
@@ -25,6 +25,7 @@ result = repatter.match(input_day)
 
 if not(result):
     print('[ERROR] 例のように日付を入力してください')
+    subprocess.run('PAUSE', shell=True)
     exit(0)
 
 date_obj = datetime.strptime(input_day, '%m/%d')
@@ -37,7 +38,8 @@ root.withdraw()
 src_file = filedialog.askopenfilename(filetypes=[("PDFファイル", "*.pdf")], title="スキャンしたpdfファイルを選択")
 
 if src_file == "":
-    print("ファイルが選択されませんでした。")
+    print("[ERROR] ファイルが選択されませんでした。")
+    subprocess.run('PAUSE', shell=True)
     sys.exit()
 
 # PDFファイルを実行中のpythonファイルと同じディレクトリにコピー
@@ -51,3 +53,20 @@ mail.bodyFormat = 1  # 1:テキストとして送信
 mail.body = mail_secret.mail_body(input_day)
 
 mail.display(False)
+
+# 選択したPDFの削除確認
+ask_move_file_input = input('scanフォルダのpdfをほかしますか？(y/N): ')
+if not(('y' or 'yes') == ask_move_file_input):
+    print("[INFO] ファイルを削除せずに終了します")
+    subprocess.run('PAUSE', shell=True)
+    sys.exit()
+
+if not(shutil.move(src_file, os.path.dirname(__file__))):
+    # scanフォルダにpdfがなかった場合
+    print("[ERROR] scanフォルダからpdfを移動できませんでした")
+    subprocess.run('PAUSE', shell=True)
+    sys.exit()
+
+print("[INFO] pdfファイルをプログラムの実行ファイルと同じフォルダに移動しました")
+subprocess.run('PAUSE', shell=True)
+sys.exit()
